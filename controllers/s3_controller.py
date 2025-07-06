@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from services.s3_service import S3Service
-
+from services.file_readers import read_file_by_type
 class S3Controller:
     def __init__(self):
         self.s3_service = S3Service()
@@ -78,5 +78,21 @@ class S3Controller:
         return jsonify(result)
 
 
+    # file read
+    def read_file(self):
+        bucket_name = request.args.get('bucket_name')
+        file_key = request.args.get('file_key')
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 20))
+
+        if not bucket_name or not file_key:
+            return jsonify({"error": "bucket_name and file_key are required"}), 400
+
+        file_stream = self.s3_service.get_file_stream(bucket_name, file_key)
+        if isinstance(file_stream, dict) and 'error' in file_stream:
+            return jsonify(file_stream), 400
+
+        result = read_file_by_type(file_key, file_stream, page, limit)
+        return jsonify(result)
 
 

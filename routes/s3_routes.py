@@ -34,5 +34,9 @@ def list_files():
 def delete_files():
     return controller.delete_files()
 
+# file read 
+@s3_blueprint.route("/read-file", methods=["GET"])
+def read_file():
+    return controller.read_file()
 
 

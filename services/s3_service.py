@@ -4,6 +4,7 @@ from config.settings import Settings
 import os
 from boto3.s3.transfer import TransferConfig
 from datetime import datetime
+from io import BytesIO
 class S3Service:
     def __init__(self):
         self.s3_client = boto3.client(
@@ -189,6 +190,16 @@ class S3Service:
                 results[key] = f"Error: {str(e)}"
 
         return results
+    
+    # file read 
+
+    def get_file_stream(self, bucket_name, file_key):
+        try:
+            response = self.s3_client.get_object(Bucket=bucket_name, Key=file_key)
+            return BytesIO(response['Body'].read())
+        except Exception as e:
+            return {"error": str(e)}
+
 
 
 
