@@ -62,6 +62,21 @@ class S3Controller:
 
         result = self.s3_service.list_files_controller(bucket_name, filters)
         return jsonify(result)
+    
+    # delet files 
+    def delete_files(self):
+        data = request.get_json()
+        bucket_name = data.get("bucket_name")
+        file_keys = data.get("file_keys")
+
+        if not bucket_name:
+            return jsonify({"error": "bucket_name is required"}), 400
+        if not file_keys or not isinstance(file_keys, list):
+            return jsonify({"error": "file_keys (list) is required"}), 400
+
+        result = self.s3_service.delete_files(bucket_name, file_keys)
+        return jsonify(result)
+
 
 
 

@@ -177,6 +177,19 @@ class S3Service:
 
         except Exception as e:
             return {"error": str(e)}
+    # delete multiple files 
+    def delete_files(self, bucket_name, file_keys):
+        results = {}
+
+        for key in file_keys:
+            try:
+                self.s3_client.delete_object(Bucket=bucket_name, Key=key)
+                results[key] = "Deleted successfully"
+            except Exception as e:
+                results[key] = f"Error: {str(e)}"
+
+        return results
+
 
 
 

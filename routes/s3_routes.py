@@ -29,5 +29,10 @@ def upload_files():
 def list_files():
     return controller.list_files()
 
+# delete multiple files 
+@s3_blueprint.route('/delete-files', methods=['DELETE'])
+def delete_files():
+    return controller.delete_files()
+
 
 
