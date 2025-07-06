@@ -3,6 +3,7 @@ from botocore.exceptions import ClientError
 from config.settings import Settings
 import os
 from boto3.s3.transfer import TransferConfig
+from datetime import datetime
 class S3Service:
     def __init__(self):
         self.s3_client = boto3.client(
@@ -115,5 +116,67 @@ class S3Service:
                 results[file_name] = f"Failed: {str(e)}"
 
         return results
+    
+
+
+    # fetch all files 
+    def list_files_controller(self, bucket_name, filters):
+        try:
+            paginator = self.s3_client.get_paginator('list_objects_v2')
+            page_iterator = paginator.paginate(Bucket=bucket_name)
+
+            all_files = []
+            for page in page_iterator:
+                for obj in page.get('Contents', []):
+                    all_files.append({
+                        'key': obj['Key'],
+                        'size': obj['Size'],
+                        'last_modified': obj['LastModified'].isoformat()
+                    })
+                
+                # Apply filters
+            if filters.get('search'):
+                keyword = filters['search'].lower()
+                all_files = [f for f in all_files if keyword in f['key'].lower()]
+
+            if filters.get('min_size') is not None:
+                all_files = [f for f in all_files if f['size'] >= filters['min_size']]
+
+            if filters.get('max_size') is not None:
+                all_files = [f for f in all_files if f['size'] <= filters['max_size']]
+
+            if filters.get('start_time'):
+                start = datetime.fromisoformat(filters['start_time'])
+                all_files = [f for f in all_files if datetime.fromisoformat(f['last_modified']) >= start]
+
+            if filters.get('end_time'):
+                end = datetime.fromisoformat(filters['end_time'])
+                all_files = [f for f in all_files if datetime.fromisoformat(f['last_modified']) <= end]
+
+            # Sort
+            sort_by = filters.get('sort_by', 'last_modified')
+            reverse = filters.get('order', 'desc') == 'desc'
+
+            if sort_by in ['size', 'last_modified']:
+                all_files.sort(key=lambda x: x[sort_by], reverse=reverse)
+
+            # Pagination
+            page = filters.get('page', 1)
+            limit = filters.get('limit', 10)
+            start_index = (page - 1) * limit
+            end_index = start_index + limit
+
+            paginated_files = all_files[start_index:end_index]
+
+            return {
+                "total_files": len(all_files),
+                "page": page,
+                "limit": limit,
+                "files": paginated_files
+            }
+
+        except Exception as e:
+            return {"error": str(e)}
+
 
 

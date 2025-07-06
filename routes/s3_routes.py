@@ -24,4 +24,10 @@ def delete_buckets():
 def upload_files():
     return controller.upload_files()
 
+# fetch all files 
+@s3_blueprint.route('/files', methods=['GET'])
+def list_files():
+    return controller.list_files()
+
+
 

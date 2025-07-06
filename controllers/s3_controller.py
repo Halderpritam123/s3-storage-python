@@ -40,5 +40,28 @@ class S3Controller:
 
         result = self.s3_service.upload_files(bucket_name, files)
         return jsonify(result)
+    
+    def list_files(self):
+        args = request.args
+
+        bucket_name = args.get("bucket_name")
+        if not bucket_name:
+            return jsonify({"error": "bucket_name is required"}), 400
+
+        filters = {
+            "search": args.get("search"),
+            "min_size": int(args.get("min_size")) if args.get("min_size") else None,
+            "max_size": int(args.get("max_size")) if args.get("max_size") else None,
+            "start_time": args.get("start_time"),
+            "end_time": args.get("end_time"),
+            "sort_by": args.get("sort_by", "last_modified"),
+            "order": args.get("order", "desc"),
+            "page": int(args.get("page", 1)),
+            "limit": int(args.get("limit", 10))
+        }
+
+        result = self.s3_service.list_files_controller(bucket_name, filters)
+        return jsonify(result)
+
 
 
