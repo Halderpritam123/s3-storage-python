@@ -7,3 +7,12 @@ controller = S3Controller()
 @s3_blueprint.route('/buckets', methods=['GET'])
 def list_buckets():
     return controller.get_buckets()
+
+@s3_blueprint.route('/create-bucket', methods=['POST'])
+def create_bucket():
+    return controller.create_bucket()
+
+@s3_blueprint.route('/delete-buckets', methods=['DELETE'])
+def delete_buckets():
+    return controller.delete_buckets()
+
