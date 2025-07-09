@@ -197,8 +197,13 @@ class S3Service:
         try:
             response = self.s3_client.get_object(Bucket=bucket_name, Key=file_key)
             return BytesIO(response['Body'].read())
+        except ClientError as e:
+            if e.response['Error']['Code'] == "NoSuchKey":
+                return {"error": f"File '{file_key}' not found in bucket '{bucket_name}'"}
+            return {"error": str(e)}
         except Exception as e:
             return {"error": str(e)}
+
 
 
 

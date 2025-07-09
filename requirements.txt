@@ -1,6 +1,7 @@
-python-dotenv==1.0.0
-pdfplumber==0.11.7
-Flask==2.2.5
 boto3==1.28.21
 botocore==1.31.85
+Flask==2.2.5
 openpyxl==3.1.5
+pandas==2.3.1
+pdfplumber==0.11.7
+xlrd==2.0.2
